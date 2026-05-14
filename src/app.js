@@ -1,7 +1,13 @@
 const state = {
   months: 12,
-  chart: null
+  chart: null,
+  data: SEMICONDUCTOR_EXPORT_DATA,
+  dataLastUpdated: DATA_LAST_UPDATED,
+  dataSourceRange: DATA_SOURCE_RANGE
 };
+
+const REMOTE_DATA_URL = "https://dohun-lee-96.github.io/semiconductor_export_trend/src/data.js";
+const ACTIONS_URL = "https://github.com/dohun-lee-96/semiconductor_export_trend/actions/workflows/update-motir-data.yml";
 
 const text = {
   billionUsd: "\uc5b5 \ub2ec\ub7ec",
@@ -16,7 +22,7 @@ const text = {
   workingDays: "\uc870\uc5c5\uc77c\uc218",
   sourceType: "\ub370\uc774\ud130 \uc131\uaca9",
   alreadyIncluded: "\ub370\uc774\ud130\uac00 \uc774\ubbf8 \uc571\uc5d0 \ud3ec\ud568\ub418\uc5b4 \uc788\uc2b5\ub2c8\ub2e4.",
-  noUpdate: "\uc5c5\ub370\uc774\ud2b8 \ud560 \ub0b4\uc6a9\uc774 \uc5c6\uc2b5\ub2c8\ub2e4. iPhone \ub2e8\ub3c5 \uc124\uce58\ud615 PWA\ub294 \uc800\uc7a5\ub41c \ub370\uc774\ud130\ub97c \ubcf4\uc5ec\uc8fc\uba70, \uc0c8 MOTIR PDF \ubc18\uc601\uc740 \uc571 \ud30c\uc77c\uc744 \ub2e4\uc2dc \ubc30\ud3ec\ud574\uc57c \uc801\uc6a9\ub429\ub2c8\ub2e4."
+  noUpdate: "\uc5c5\ub370\uc774\ud2b8 \ud560 \ub0b4\uc6a9\uc774 \uc5c6\uc2b5\ub2c8\ub2e4."
 };
 
 const formatBillion = (value) => {
@@ -27,12 +33,12 @@ const formatDaily = (value) => `${value.toLocaleString("ko-KR", { minimumFractio
 const formatPct = (value) => `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
 
 function getFilteredData() {
-  return SEMICONDUCTOR_EXPORT_DATA.slice(-state.months);
+  return state.data.slice(-state.months);
 }
 
 function getPreviousRow(row) {
-  const index = SEMICONDUCTOR_EXPORT_DATA.findIndex((item) => item.period === row.period);
-  return index > 0 ? SEMICONDUCTOR_EXPORT_DATA[index - 1] : null;
+  const index = state.data.findIndex((item) => item.period === row.period);
+  return index > 0 ? state.data[index - 1] : null;
 }
 
 function setUpdateMessage(message, type = "info") {
@@ -47,7 +53,7 @@ function renderKpis(rows) {
 
   document.getElementById("latestMonthly").textContent = formatBillion(latest.monthlyExport);
   document.getElementById("latestMonthLabel").textContent = `${latest.period} ${text.asOf}`;
-  document.getElementById("lastUpdated").textContent = `${text.updatedAt}: ${DATA_LAST_UPDATED} · ${text.sourceRange}: ${DATA_SOURCE_RANGE}`;
+  document.getElementById("lastUpdated").textContent = `${text.updatedAt}: ${state.dataLastUpdated} · ${text.sourceRange}: ${state.dataSourceRange}`;
 }
 
 function renderChart(rows) {
@@ -140,17 +146,77 @@ function renderTable(rows) {
   }).join("");
 }
 
-function updateCurrentMonth() {
-  const now = new Date();
-  const currentPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const hasCurrentMonth = SEMICONDUCTOR_EXPORT_DATA.some((row) => row.period === currentPeriod);
+function parseRemoteData(source) {
+  const dataMatch = source.match(/const PUBLISHED_MONTHLY_EXPORTS_BILLION_USD = \{([\s\S]*?)\};/);
+  if (!dataMatch) throw new Error("remote data object was not found");
 
-  if (hasCurrentMonth) {
-    setUpdateMessage(`${currentPeriod} ${text.alreadyIncluded}`, "success");
-    return;
+  const exports = {};
+  for (const match of dataMatch[1].matchAll(/"(\d{4}-\d{2})":\s*([0-9.]+)/g)) {
+    exports[match[1]] = Number(match[2]);
   }
 
-  setUpdateMessage(text.noUpdate);
+  const updatedMatch = source.match(/const DATA_LAST_UPDATED = "([^"]+)";/);
+  const rangeMatch = source.match(/const DATA_SOURCE_RANGE = "([^"]+)";/);
+  return {
+    exports,
+    updatedAt: updatedMatch ? updatedMatch[1] : state.dataLastUpdated,
+    sourceRange: rangeMatch ? rangeMatch[1] : state.dataSourceRange
+  };
+}
+
+function buildDatasetFromExports(exports) {
+  return Object.keys(exports)
+    .sort()
+    .map((period) => {
+      const [year, month] = period.split("-").map(Number);
+      const monthlyExport = exports[period];
+      const workingDays = PUBLISHED_WORKING_DAYS[period] ?? getWorkingDays(year, month);
+      return {
+        period,
+        year,
+        month,
+        monthlyExport: Number(monthlyExport.toFixed(2)),
+        monthlyImport: null,
+        workingDays,
+        dailyAverage: Number((monthlyExport / workingDays).toFixed(2)),
+        sourceType: "GitHub Pages 최신 저장값"
+      };
+    });
+}
+
+function latestPeriod(rows) {
+  return rows.length ? rows[rows.length - 1].period : "";
+}
+
+async function updateCurrentMonth() {
+  const button = document.getElementById("updateData");
+  button.disabled = true;
+  setUpdateMessage("GitHub Pages의 최신 데이터를 확인하고 있습니다.");
+
+  try {
+    const response = await fetch(`${REMOTE_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const remote = parseRemoteData(await response.text());
+    const remoteData = buildDatasetFromExports(remote.exports);
+    const localLatest = latestPeriod(state.data);
+    const remoteLatest = latestPeriod(remoteData);
+
+    if (remoteLatest > localLatest || remoteData.length > state.data.length) {
+      state.data = remoteData;
+      state.dataLastUpdated = remote.updatedAt;
+      state.dataSourceRange = remote.sourceRange;
+      render();
+      setUpdateMessage(`${remoteLatest} 기준 GitHub Pages 최신 데이터를 앱 화면에 반영했습니다.`, "success");
+      return;
+    }
+
+    setUpdateMessage(`${text.noUpdate} 새 MOTIR PDF 반영이 필요하면 GitHub Actions에서 Update MOTIR semiconductor data를 Run workflow로 실행하세요: ${ACTIONS_URL}`);
+  } catch (error) {
+    setUpdateMessage(`GitHub Pages 데이터 확인에 실패했습니다. GitHub Actions에서 수동 실행해 주세요: ${ACTIONS_URL}`, "error");
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function render() {

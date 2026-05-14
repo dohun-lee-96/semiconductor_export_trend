@@ -15,32 +15,40 @@ PC와 같은 Wi-Fi에 연결할 필요가 없도록, `dist/semiconductor-iphone-
 - 월별 반도체 수출액 선형 그래프
 - 최신 월 수출액 KPI
 - 월별 데이터 테이블
-- 업데이트 버튼: 현재 배포본에 해당 월 데이터가 포함되어 있는지 확인하고, 없으면 `업데이트 할 내용이 없습니다`를 표시
+- 업데이트 버튼: GitHub Pages의 최신 `src/data.js`를 확인하고, 더 최신 데이터가 있으면 화면에 바로 반영
 
 ## 데이터 갱신
 
-영구 데이터는 `src/data.js`에 있습니다. 현재 저장 범위는 2025년 1월부터 2026년 4월까지입니다.
+영구 데이터는 `src/data.js`에 있습니다. GitHub Actions가 실행되면 이 파일에서 누락된 월만 MOTIR에서 찾아 추가합니다.
 
 ```js
 "2026-04": 319.0
 ```
 
-앱은 저장된 월 수출액과 조업일수를 함께 표시하며, 참고용 일평균 값도 테이블에 제공합니다.
+GitHub Actions는 `.github/workflows/update-motir-data.yml`에 있습니다. GitHub repository의 `Actions` 탭에서 `Update MOTIR semiconductor data`를 선택한 뒤 `Run workflow`를 누르면 수동 실행할 수 있고, 매일 자동 실행도 설정되어 있습니다.
 
 ## 공개 호스팅에 올릴 파일
 
-이 앱은 정적 PWA이므로 아래 파일만 공개 웹 호스팅에 올리면 됩니다.
+PWA 표시에는 아래 파일이 필요합니다.
 
 - `index.html`
 - `src/`
 - `manifest.webmanifest`
 - `sw.js`
+- `README.md`
+
+자동 데이터 업데이트에는 아래 파일도 repository에 함께 올려야 합니다.
+
+- `.github/workflows/update-motir-data.yml`
+- `scripts/update_missing_data.py`
+- `.cursor/skills/semiconductor-export-report/scripts/build_report.py`
+- `requirements.txt`
 
 1. 공개 URL을 iPhone Safari에서 엽니다.
 2. 공유 버튼을 누릅니다.
 3. `홈 화면에 추가`를 선택합니다.
 
-이후 홈 화면 아이콘을 누르면 앱처럼 실행됩니다. 단, 정적 호스팅만 사용하는 경우 iPhone 단독으로 MOTIR PDF를 새로 크롤링해 파일을 수정할 수는 없습니다. 새 데이터 반영은 데이터를 갱신한 뒤 앱 파일을 다시 배포해야 합니다.
+이후 홈 화면 아이콘을 누르면 앱처럼 실행됩니다. iPhone 앱의 업데이트 버튼은 GitHub Pages의 최신 데이터 파일을 확인합니다. MOTIR PDF 수집과 `src/data.js` 자동 커밋은 GitHub Actions에서 처리합니다.
 
 ## iPhone 설치 파일에 대한 제한
 
