@@ -3,7 +3,7 @@ const REMOTE_DATA_URL = "https://dohun-lee-96.github.io/semiconductor_export_tre
 const ACTIONS_URL = "https://github.com/dohun-lee-96/semiconductor_export_trend/actions/workflows/update-motir-data.yml";
 
 const state = {
-  months: 120,
+  months: 12,
   chart: null,
   data: buildDatasetFromExports({ ...PUBLISHED_MONTHLY_EXPORTS_BILLION_USD, ...loadManualExports() }),
   dataLastUpdated: DATA_LAST_UPDATED,
