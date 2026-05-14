@@ -1,6 +1,4 @@
 const MANUAL_DATA_KEY = "semiconductorManualExports";
-const REMOTE_DATA_URL = "https://dohun-lee-96.github.io/semiconductor_export_trend/src/data.js";
-const ACTIONS_URL = "https://github.com/dohun-lee-96/semiconductor_export_trend/actions/workflows/update-motir-data.yml";
 const DEFAULT_MONTHS = 12;
 
 const state = {
@@ -163,24 +161,6 @@ function renderTable(rows) {
   }).join("");
 }
 
-function parseRemoteData(source) {
-  const dataMatch = source.match(/const PUBLISHED_MONTHLY_EXPORTS_BILLION_USD = \{([\s\S]*?)\};/);
-  if (!dataMatch) throw new Error("remote data object was not found");
-
-  const exports = {};
-  for (const match of dataMatch[1].matchAll(/"(\d{4}-\d{2})":\s*([0-9.]+)/g)) {
-    exports[match[1]] = Number(match[2]);
-  }
-
-  const updatedMatch = source.match(/const DATA_LAST_UPDATED = "([^"]+)";/);
-  const rangeMatch = source.match(/const DATA_SOURCE_RANGE = "([^"]+)";/);
-  return {
-    exports,
-    updatedAt: updatedMatch ? updatedMatch[1] : state.dataLastUpdated,
-    sourceRange: rangeMatch ? rangeMatch[1] : state.dataSourceRange
-  };
-}
-
 function buildDatasetFromExports(exports) {
   return Object.keys(exports)
     .sort()
@@ -205,37 +185,6 @@ function latestPeriod(rows) {
   return rows.length ? rows[rows.length - 1].period : "";
 }
 
-async function updateCurrentMonth() {
-  const button = document.getElementById("updateData");
-  button.disabled = true;
-  setUpdateMessage("GitHub Pages의 최신 데이터를 확인하고 있습니다.");
-
-  try {
-    const response = await fetch(`${REMOTE_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-    const remote = parseRemoteData(await response.text());
-    const remoteData = buildDatasetFromExports(remote.exports);
-    const localLatest = latestPeriod(state.data);
-    const remoteLatest = latestPeriod(remoteData);
-
-    if (remoteLatest > localLatest || remoteData.length > state.data.length) {
-      state.data = buildDatasetFromExports({ ...remote.exports, ...loadManualExports() });
-      state.dataLastUpdated = remote.updatedAt;
-      state.dataSourceRange = sourceRangeForRows(state.data);
-      render();
-      setUpdateMessage(`${remoteLatest} 기준 GitHub Pages 최신 데이터를 앱 화면에 반영했습니다.`, "success");
-      return;
-    }
-
-    setUpdateMessage(`${text.noUpdate} 새 MOTIR PDF 반영이 필요하면 GitHub Actions에서 Update MOTIR semiconductor data를 Run workflow로 실행하세요: ${ACTIONS_URL}`);
-  } catch (error) {
-    setUpdateMessage(`GitHub Pages 데이터 확인에 실패했습니다. GitHub Actions에서 수동 실행해 주세요: ${ACTIONS_URL}`, "error");
-  } finally {
-    button.disabled = false;
-  }
-}
-
 function addManualData(event) {
   event.preventDefault();
 
@@ -250,6 +199,7 @@ function addManualData(event) {
   }
 
   const manualExports = loadManualExports();
+  const isOverwrite = state.data.some((row) => row.period === period);
   manualExports[period] = Number(exportValue.toFixed(2));
   saveManualExports(manualExports);
 
@@ -259,7 +209,9 @@ function addManualData(event) {
   render();
 
   exportInput.value = "";
-  setUpdateMessage(`${period} ${formatBillion(exportValue)} 값을 추가했습니다.`, "success");
+  const resultMessage = isOverwrite ? "수정했습니다" : "추가되었습니다";
+  window.alert(resultMessage);
+  setUpdateMessage(`${period} ${formatBillion(exportValue)} ${resultMessage}.`, "success");
 }
 
 function render() {
@@ -276,7 +228,6 @@ monthSelect.addEventListener("change", (event) => {
   render();
 });
 document.getElementById("manualDataForm").addEventListener("submit", addManualData);
-document.getElementById("updateData").addEventListener("click", updateCurrentMonth);
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

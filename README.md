@@ -15,7 +15,7 @@ PC와 같은 Wi-Fi에 연결할 필요가 없도록, `dist/semiconductor-iphone-
 - 월별 반도체 수출액 선형 그래프
 - 최신 월 수출액 KPI
 - 월별 데이터 테이블
-- 업데이트 버튼: GitHub Pages의 최신 `src/data.js`를 확인하고, 더 최신 데이터가 있으면 화면에 바로 반영
+- 직접 입력한 월별 데이터를 iPhone에 저장하고 그래프에 즉시 반영
 
 ## 데이터 갱신
 
@@ -48,7 +48,7 @@ PWA 표시에는 아래 파일이 필요합니다.
 2. 공유 버튼을 누릅니다.
 3. `홈 화면에 추가`를 선택합니다.
 
-이후 홈 화면 아이콘을 누르면 앱처럼 실행됩니다. iPhone 앱의 업데이트 버튼은 GitHub Pages의 최신 데이터 파일을 확인합니다. MOTIR PDF 수집과 `src/data.js` 자동 커밋은 GitHub Actions에서 처리합니다.
+이후 홈 화면 아이콘을 누르면 앱처럼 실행됩니다. iPhone 앱에서 직접 추가한 데이터는 해당 기기의 브라우저 저장소에 보관됩니다. MOTIR PDF 수집과 `src/data.js` 자동 커밋은 GitHub Actions에서 처리합니다.
 
 ## iPhone 설치 파일에 대한 제한
 

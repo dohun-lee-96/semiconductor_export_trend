@@ -11,7 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./src/icon.svg">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
-  <link rel="stylesheet" href="./src/styles.css">
+  <link rel="stylesheet" href="./src/styles.css?v=13">
 </head>
 <body>
   <main class="app">
@@ -19,9 +19,6 @@
       <div>
         <p class="eyebrow">Korea Semiconductor Trade Monitor</p>
         <h1>반도체 수출입 동향</h1>
-      </div>
-      <div class="hero-actions" aria-label="앱 동작">
-        <button id="updateData" class="update-button">업데이트 확인</button>
       </div>
     </header>
 
@@ -63,7 +60,7 @@
         </div>
         <label class="month-picker chart-month-picker">
           <span>기간 선택</span>
-          <select id="monthSelect" aria-label="표시할 기간">
+          <select id="monthSelect" aria-label="표시할 기간" autocomplete="off">
             <option value="6">6개월</option>
             <option value="12" selected>1년</option>
             <option value="120">10년</option>
@@ -100,7 +97,7 @@
     </footer>
   </main>
 
-  <script src="./src/data.js"></script>
-  <script src="./src/app.js"></script>
+  <script src="./src/data.js?v=13"></script>
+  <script src="./src/app.js?v=13"></script>
 </body>
 </html>
