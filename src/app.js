@@ -1,5 +1,5 @@
 const state = {
-  months: 12,
+  months: 120,
   chart: null,
   data: SEMICONDUCTOR_EXPORT_DATA,
   dataLastUpdated: DATA_LAST_UPDATED,

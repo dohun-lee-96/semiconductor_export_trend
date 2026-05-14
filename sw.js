@@ -1,4 +1,4 @@
-const CACHE_NAME = "semiconductor-trade-app-v5";
+const CACHE_NAME = "semiconductor-trade-app-v6";
 const ASSETS = [
   "./",
   "./index.html",
