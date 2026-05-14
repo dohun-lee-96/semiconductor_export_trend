@@ -19,9 +19,6 @@
       <div>
         <p class="eyebrow">Korea Semiconductor Trade Monitor</p>
         <h1>반도체 수출입 동향</h1>
-        <p class="subtitle">
-          2025년 1월부터 2026년 4월까지 MOTIR 수출입 동향 PDF에서 확인한 반도체 월별 수출 데이터를 저장해 보여줍니다.
-        </p>
       </div>
       <div class="hero-actions" aria-label="앱 동작">
         <label class="month-picker">
@@ -71,10 +68,9 @@
     <section class="chart-card">
       <div class="chart-heading">
         <div>
-          <h2>월별 반도체 수출입 그래프</h2>
-          <p>단위: 억 달러. 수입 데이터가 저장되면 함께 표시됩니다.</p>
+          <h2>월별 반도체 수출 그래프</h2>
+          <p>단위: 억 달러.</p>
         </div>
-        <button id="downloadCsv" class="secondary-button">CSV 내려받기</button>
       </div>
       <div class="chart-wrap">
         <canvas id="dailyExportChart"></canvas>
@@ -92,11 +88,7 @@
             <tr>
               <th>월</th>
               <th>반도체 수출</th>
-              <th>반도체 수입</th>
-              <th>조업일수</th>
-              <th>일평균</th>
               <th>전월 대비</th>
-              <th>데이터 성격</th>
             </tr>
           </thead>
           <tbody id="dataTable"></tbody>

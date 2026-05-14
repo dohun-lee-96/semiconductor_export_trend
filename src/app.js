@@ -59,8 +59,14 @@ function renderKpis(rows) {
 function renderChart(rows) {
   const labels = rows.map((row) => row.period);
   const exportValues = rows.map((row) => row.monthlyExport);
-  const importValues = rows.map((row) => row.monthlyImport);
-  const hasImportValues = importValues.some((value) => value !== null);
+  const maxExport = Math.max(...exportValues);
+  const minExport = Math.min(...exportValues);
+  const pointColors = exportValues.map((value) => {
+    if (value === maxExport) return "#dc2626";
+    if (value === minExport) return "#2563eb";
+    return "#6b7280";
+  });
+
   const datasets = [
     {
       type: "line",
@@ -71,25 +77,13 @@ function renderChart(rows) {
       borderWidth: 3,
       fill: true,
       tension: 0.32,
-      pointRadius: 4,
-      pointHoverRadius: 7
+      pointBackgroundColor: pointColors,
+      pointBorderColor: "#ffffff",
+      pointBorderWidth: 2,
+      pointRadius: exportValues.map((value) => value === maxExport || value === minExport ? 7 : 4),
+      pointHoverRadius: 8
     }
   ];
-
-  if (hasImportValues) {
-    datasets.push({
-      type: "line",
-      label: text.semiconductorImport,
-      data: importValues,
-      borderColor: "#2563eb",
-      backgroundColor: "rgba(37, 99, 235, 0.08)",
-      borderWidth: 2,
-      fill: false,
-      tension: 0.32,
-      pointRadius: 4,
-      pointHoverRadius: 7
-    });
-  }
 
   if (state.chart) {
     state.chart.data.labels = labels;
@@ -107,13 +101,9 @@ function renderChart(rows) {
       maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
-        legend: { position: "top", labels: { usePointStyle: true, padding: 18 } },
+        legend: { display: false },
         tooltip: {
           callbacks: {
-            afterBody(items) {
-              const row = rows[items[0].dataIndex];
-              return [`${text.workingDays}: ${row.workingDays}\uc77c`, `${text.sourceType}: ${row.sourceType}`];
-            },
             label(context) {
               return `${context.dataset.label}: ${formatBillion(context.parsed.y)}`;
             }
@@ -121,7 +111,19 @@ function renderChart(rows) {
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+        x: {
+          grid: { display: false },
+          ticks: {
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 8,
+            callback(value) {
+              const label = this.getLabelForValue(value);
+              const [year, month] = label.split("-");
+              return `'${year.slice(2)}.${month}`;
+            }
+          }
+        },
         y: { title: { display: true, text: text.billionUsd }, ticks: { callback: (value) => value.toFixed(0) } }
       }
     }
@@ -138,27 +140,10 @@ function renderTable(rows) {
       <tr>
         <td>${row.period}</td>
         <td>${formatBillion(row.monthlyExport)}</td>
-        <td>${formatBillion(row.monthlyImport)}</td>
-        <td>${row.workingDays}\uc77c</td>
-        <td>${formatDaily(row.dailyAverage)}</td>
         <td class="${changeClass}">${previous ? formatPct(change) : "-"}</td>
-        <td>${row.sourceType}</td>
       </tr>
     `;
   }).join("");
-}
-
-function downloadCsv(rows) {
-  const header = ["period", "semiconductor_export_billion_usd", "semiconductor_import_billion_usd", "working_days", "daily_average_billion_usd", "source_type"];
-  const lines = rows.map((row) => [row.period, row.monthlyExport, row.monthlyImport ?? "", row.workingDays, row.dailyAverage, row.sourceType].join(","));
-  const csv = [header.join(","), ...lines].join("\n");
-  const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `korea-semiconductor-trade-${state.months}m.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
 }
 
 function updateCurrentMonth() {
@@ -185,7 +170,6 @@ document.getElementById("monthSelect").addEventListener("change", (event) => {
   state.months = Number(event.target.value);
   render();
 });
-document.getElementById("downloadCsv").addEventListener("click", () => downloadCsv(getFilteredData()));
 document.getElementById("updateData").addEventListener("click", updateCurrentMonth);
 
 if ("serviceWorker" in navigator) {
