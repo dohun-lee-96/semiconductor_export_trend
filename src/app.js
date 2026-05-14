@@ -105,10 +105,8 @@ function renderChart(rows) {
   ];
 
   if (state.chart) {
-    state.chart.data.labels = labels;
-    state.chart.data.datasets = datasets;
-    state.chart.update("none");
-    return;
+    state.chart.destroy();
+    state.chart = null;
   }
 
   const context = document.getElementById("dailyExportChart").getContext("2d");
