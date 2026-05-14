@@ -303,7 +303,10 @@ h1 {
 }
 
 .table-wrap {
-  overflow-x: auto;
+  max-height: 560px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 16px;
 }
 
 table {
@@ -328,6 +331,10 @@ td:last-child {
 }
 
 th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--card);
   color: var(--muted);
   font-size: 12px;
   letter-spacing: 0.04em;
