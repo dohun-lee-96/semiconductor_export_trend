@@ -1,9 +1,10 @@
 const MANUAL_DATA_KEY = "semiconductorManualExports";
 const REMOTE_DATA_URL = "https://dohun-lee-96.github.io/semiconductor_export_trend/src/data.js";
 const ACTIONS_URL = "https://github.com/dohun-lee-96/semiconductor_export_trend/actions/workflows/update-motir-data.yml";
+const DEFAULT_MONTHS = 12;
 
 const state = {
-  months: 12,
+  months: DEFAULT_MONTHS,
   chart: null,
   data: buildDatasetFromExports({ ...PUBLISHED_MONTHLY_EXPORTS_BILLION_USD, ...loadManualExports() }),
   dataLastUpdated: DATA_LAST_UPDATED,
@@ -270,7 +271,9 @@ function render() {
   renderTable(rows);
 }
 
-document.getElementById("monthSelect").addEventListener("change", (event) => {
+const monthSelect = document.getElementById("monthSelect");
+monthSelect.value = String(DEFAULT_MONTHS);
+monthSelect.addEventListener("change", (event) => {
   state.months = Number(event.target.value);
   render();
 });
