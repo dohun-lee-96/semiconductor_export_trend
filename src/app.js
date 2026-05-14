@@ -15,7 +15,7 @@ const text = {
   semiconductorExport: "\ubc18\ub3c4\uccb4 \uc218\ucd9c",
   semiconductorImport: "\ubc18\ub3c4\uccb4 \uc218\uc785",
   confirmNeeded: "\ud655\uc778 \ud544\uc694",
-  update: "\uc5c5\ub370\uc774\ud2b8",
+  update: "\uc54c\ub9bc",
   asOf: "\uae30\uc900",
   updatedAt: "\ub370\uc774\ud130 \uac31\uc2e0\uc77c",
   sourceRange: "\uc800\uc7a5 \ubc94\uc704",
@@ -222,7 +222,12 @@ function render() {
 }
 
 const monthSelect = document.getElementById("monthSelect");
-monthSelect.value = String(DEFAULT_MONTHS);
+function resetDefaultPeriod() {
+  state.months = DEFAULT_MONTHS;
+  monthSelect.value = String(DEFAULT_MONTHS);
+}
+
+resetDefaultPeriod();
 monthSelect.addEventListener("change", (event) => {
   state.months = Number(event.target.value);
   render();

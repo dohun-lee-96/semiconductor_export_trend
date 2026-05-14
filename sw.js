@@ -1,11 +1,11 @@
-const CACHE_NAME = "semiconductor-trade-app-v13";
+const CACHE_NAME = "semiconductor-trade-app-v14";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./src/app.js?v=13",
-  "./src/data.js?v=13",
-  "./src/styles.css?v=13",
+  "./src/app.js?v=14",
+  "./src/data.js?v=14",
+  "./src/styles.css?v=14",
   "./src/icon.svg"
 ];
 
