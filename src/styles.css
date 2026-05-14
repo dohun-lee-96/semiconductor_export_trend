@@ -96,6 +96,16 @@ h1 {
   font-weight: 800;
 }
 
+.chart-month-picker {
+  min-width: 132px;
+  color: var(--muted);
+}
+
+.chart-month-picker select {
+  border: 1px solid var(--line);
+  background: #f8fafc;
+}
+
 .secondary-button,
 .update-button {
   border: 0;
@@ -136,6 +146,31 @@ h1 {
   line-height: 1.6;
 }
 
+.update-status {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(217, 225, 239, 0.8);
+  border-radius: 18px;
+  background: var(--card);
+  color: var(--muted);
+  box-shadow: var(--shadow);
+  line-height: 1.5;
+}
+
+.update-status[hidden] {
+  display: none;
+}
+
+.update-status.success {
+  border-color: rgba(8, 116, 67, 0.35);
+  background: #ecfdf3;
+}
+
+.update-status.error {
+  border-color: rgba(192, 54, 44, 0.35);
+  background: #fff1f0;
+}
+
 .source-note.success {
   border-color: rgba(8, 116, 67, 0.35);
   background: #ecfdf3;
@@ -153,7 +188,7 @@ h1 {
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   margin-bottom: 18px;
 }
@@ -283,7 +318,7 @@ th {
 
   .hero-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .kpi-grid {
@@ -315,6 +350,10 @@ th {
 
   .month-picker select,
   .update-button {
+    width: 100%;
+  }
+
+  .chart-month-picker {
     width: 100%;
   }
 }

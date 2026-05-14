@@ -37,22 +37,16 @@ function getPreviousRow(row) {
 
 function setUpdateMessage(message, type = "info") {
   const element = document.getElementById("updateMessage");
-  element.className = `source-note ${type}`;
-  element.innerHTML = `<strong>${type === "error" ? text.confirmNeeded : text.update}</strong><span>${message}</span>`;
+  element.hidden = false;
+  element.className = `update-status ${type}`;
+  element.textContent = `${type === "error" ? text.confirmNeeded : text.update}: ${message}`;
 }
 
 function renderKpis(rows) {
   const latest = rows[rows.length - 1];
-  const average = rows.reduce((sum, row) => sum + row.monthlyExport, 0) / rows.length;
-  const maxRow = rows.reduce((max, row) => row.monthlyExport > max.monthlyExport ? row : max, rows[0]);
 
   document.getElementById("latestMonthly").textContent = formatBillion(latest.monthlyExport);
   document.getElementById("latestMonthLabel").textContent = `${latest.period} ${text.asOf}`;
-  document.getElementById("periodAverageExport").textContent = formatBillion(average);
-  document.getElementById("periodRange").textContent = `${rows[0].period} ~ ${latest.period}`;
-  document.getElementById("maxMonthly").textContent = formatBillion(maxRow.monthlyExport);
-  document.getElementById("maxMonthLabel").textContent = `${maxRow.period} ${text.asOf}`;
-  document.getElementById("visibleMonths").textContent = rows.length.toLocaleString("ko-KR");
   document.getElementById("lastUpdated").textContent = `${text.updatedAt}: ${DATA_LAST_UPDATED} · ${text.sourceRange}: ${DATA_SOURCE_RANGE}`;
 }
 
