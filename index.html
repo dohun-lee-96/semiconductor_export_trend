@@ -35,6 +35,26 @@
       </article>
     </section>
 
+    <section class="manual-card">
+      <div class="table-heading">
+        <div>
+          <h2>월별 데이터 직접 추가</h2>
+          <p>월과 반도체 수출액을 입력한 뒤 추가를 누르면 그래프와 표가 바로 업데이트됩니다.</p>
+        </div>
+      </div>
+      <form id="manualDataForm" class="manual-form">
+        <label>
+          <span>월</span>
+          <input id="manualPeriod" type="month" min="2016-01" required>
+        </label>
+        <label>
+          <span>반도체 수출액</span>
+          <input id="manualExport" type="number" inputmode="decimal" min="0" step="0.01" placeholder="예: 99.46" required>
+        </label>
+        <button type="submit" class="manual-add-button">추가</button>
+      </form>
+    </section>
+
     <section class="chart-card">
       <div class="chart-heading">
         <div>

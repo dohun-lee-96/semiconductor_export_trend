@@ -129,6 +129,7 @@ h1 {
 
 .source-note,
 .kpi-card,
+.manual-card,
 .chart-card,
 .table-card {
   background: var(--card);
@@ -225,10 +226,48 @@ h1 {
   color: var(--negative) !important;
 }
 
+.manual-card,
 .chart-card,
 .table-card {
   padding: 24px;
   margin-bottom: 18px;
+}
+
+.manual-form {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(180px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.manual-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.manual-form input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 11px 12px;
+  color: var(--primary-dark);
+  font: inherit;
+  font-weight: 700;
+  background: #f8fafc;
+}
+
+.manual-add-button {
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 18px;
+  background: var(--primary-dark);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
 }
 
 .chart-heading,
@@ -305,6 +344,7 @@ th {
 
 @media (max-width: 860px) {
   .hero,
+  .manual-form,
   .chart-heading,
   .table-heading,
   .source-note,
@@ -321,6 +361,10 @@ th {
     justify-content: flex-start;
   }
 
+  .manual-form {
+    grid-template-columns: 1fr;
+  }
+
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -333,6 +377,7 @@ th {
   }
 
   .hero,
+  .manual-card,
   .chart-card,
   .table-card {
     padding: 18px;
@@ -349,7 +394,8 @@ th {
   }
 
   .month-picker select,
-  .update-button {
+  .update-button,
+  .manual-add-button {
     width: 100%;
   }
 

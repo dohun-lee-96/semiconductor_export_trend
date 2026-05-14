@@ -1,13 +1,14 @@
+const MANUAL_DATA_KEY = "semiconductorManualExports";
+const REMOTE_DATA_URL = "https://dohun-lee-96.github.io/semiconductor_export_trend/src/data.js";
+const ACTIONS_URL = "https://github.com/dohun-lee-96/semiconductor_export_trend/actions/workflows/update-motir-data.yml";
+
 const state = {
   months: 120,
   chart: null,
-  data: SEMICONDUCTOR_EXPORT_DATA,
+  data: buildDatasetFromExports({ ...PUBLISHED_MONTHLY_EXPORTS_BILLION_USD, ...loadManualExports() }),
   dataLastUpdated: DATA_LAST_UPDATED,
   dataSourceRange: DATA_SOURCE_RANGE
 };
-
-const REMOTE_DATA_URL = "https://dohun-lee-96.github.io/semiconductor_export_trend/src/data.js";
-const ACTIONS_URL = "https://github.com/dohun-lee-96/semiconductor_export_trend/actions/workflows/update-motir-data.yml";
 
 const text = {
   billionUsd: "\uc5b5 \ub2ec\ub7ec",
@@ -31,6 +32,23 @@ const formatBillion = (value) => {
 };
 const formatDaily = (value) => `${value.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${text.billionUsdPerDay}`;
 const formatPct = (value) => `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+
+function loadManualExports() {
+  try {
+    return JSON.parse(localStorage.getItem(MANUAL_DATA_KEY) || "{}");
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveManualExports(values) {
+  localStorage.setItem(MANUAL_DATA_KEY, JSON.stringify(values));
+}
+
+function sourceRangeForRows(rows) {
+  if (!rows.length) return "-";
+  return `${rows[0].period} ~ ${rows[rows.length - 1].period}`;
+}
 
 function getFilteredData() {
   return state.data.slice(-state.months);
@@ -203,9 +221,9 @@ async function updateCurrentMonth() {
     const remoteLatest = latestPeriod(remoteData);
 
     if (remoteLatest > localLatest || remoteData.length > state.data.length) {
-      state.data = remoteData;
+      state.data = buildDatasetFromExports({ ...remote.exports, ...loadManualExports() });
       state.dataLastUpdated = remote.updatedAt;
-      state.dataSourceRange = remote.sourceRange;
+      state.dataSourceRange = sourceRangeForRows(state.data);
       render();
       setUpdateMessage(`${remoteLatest} 기준 GitHub Pages 최신 데이터를 앱 화면에 반영했습니다.`, "success");
       return;
@@ -219,6 +237,32 @@ async function updateCurrentMonth() {
   }
 }
 
+function addManualData(event) {
+  event.preventDefault();
+
+  const periodInput = document.getElementById("manualPeriod");
+  const exportInput = document.getElementById("manualExport");
+  const period = periodInput.value;
+  const exportValue = Number(exportInput.value);
+
+  if (!/^\d{4}-\d{2}$/.test(period) || !Number.isFinite(exportValue) || exportValue <= 0) {
+    setUpdateMessage("월과 수출액을 올바르게 입력해 주세요.", "error");
+    return;
+  }
+
+  const manualExports = loadManualExports();
+  manualExports[period] = Number(exportValue.toFixed(2));
+  saveManualExports(manualExports);
+
+  state.data = buildDatasetFromExports({ ...PUBLISHED_MONTHLY_EXPORTS_BILLION_USD, ...manualExports });
+  state.dataLastUpdated = "직접 입력 포함";
+  state.dataSourceRange = sourceRangeForRows(state.data);
+  render();
+
+  exportInput.value = "";
+  setUpdateMessage(`${period} ${formatBillion(exportValue)} 값을 추가했습니다.`, "success");
+}
+
 function render() {
   const rows = getFilteredData();
   renderKpis(rows);
@@ -230,6 +274,7 @@ document.getElementById("monthSelect").addEventListener("change", (event) => {
   state.months = Number(event.target.value);
   render();
 });
+document.getElementById("manualDataForm").addEventListener("submit", addManualData);
 document.getElementById("updateData").addEventListener("click", updateCurrentMonth);
 
 if ("serviceWorker" in navigator) {
