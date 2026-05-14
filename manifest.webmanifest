@@ -1,0 +1,19 @@
+{
+  "name": "반도체 수출입 동향",
+  "short_name": "반도체 동향",
+  "description": "MOTIR 월별 PDF 기반 반도체 수출입 동향 iPhone용 PWA",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#101827",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./src/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

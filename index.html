@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#101827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="반도체 동향">
+  <title>반도체 수출입 동향</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./src/icon.svg">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Korea Semiconductor Trade Monitor</p>
+        <h1>반도체 수출입 동향</h1>
+        <p class="subtitle">
+          2025년 1월부터 2026년 4월까지 MOTIR 수출입 동향 PDF에서 확인한 반도체 월별 수출 데이터를 저장해 보여줍니다.
+        </p>
+      </div>
+      <div class="hero-actions" aria-label="앱 동작">
+        <label class="month-picker">
+          <span>최근 n개월</span>
+          <select id="monthSelect" aria-label="표시할 최근 월수">
+            <option value="3">3개월</option>
+            <option value="6">6개월</option>
+            <option value="9">9개월</option>
+            <option value="12" selected>12개월</option>
+            <option value="16">16개월</option>
+          </select>
+        </label>
+        <button id="updateData" class="update-button">업데이트 확인</button>
+      </div>
+    </header>
+
+    <section class="source-note" id="updateMessage">
+      <strong>설치 안내</strong>
+      <span>
+        Safari에서 이 페이지를 연 뒤 공유 버튼을 누르고 홈 화면에 추가를 선택하면 iPhone 앱처럼 설치됩니다.
+      </span>
+    </section>
+
+    <section class="kpi-grid" aria-label="핵심 지표">
+      <article class="kpi-card">
+        <span class="kpi-label">최신 월 수출액</span>
+        <strong id="latestMonthly">-</strong>
+        <small id="latestMonthLabel">-</small>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">선택 기간 평균 수출액</span>
+        <strong id="periodAverageExport">-</strong>
+        <small id="periodRange">-</small>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">최고 월 수출액</span>
+        <strong id="maxMonthly">-</strong>
+        <small id="maxMonthLabel">-</small>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">표시 월수</span>
+        <strong id="visibleMonths">-</strong>
+        <small>월별 관측치</small>
+      </article>
+    </section>
+
+    <section class="chart-card">
+      <div class="chart-heading">
+        <div>
+          <h2>월별 반도체 수출입 그래프</h2>
+          <p>단위: 억 달러. 수입 데이터가 저장되면 함께 표시됩니다.</p>
+        </div>
+        <button id="downloadCsv" class="secondary-button">CSV 내려받기</button>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="dailyExportChart"></canvas>
+      </div>
+    </section>
+
+    <section class="table-card">
+      <div class="table-heading">
+        <h2>월별 데이터</h2>
+        <p>앱 실행 시 저장된 영구 데이터를 참조합니다.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>월</th>
+              <th>반도체 수출</th>
+              <th>반도체 수입</th>
+              <th>조업일수</th>
+              <th>일평균</th>
+              <th>전월 대비</th>
+              <th>데이터 성격</th>
+            </tr>
+          </thead>
+          <tbody id="dataTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>출처: 산업통상자원부 MOTIR 월별 수출입 동향 PDF 기반</span>
+      <span id="lastUpdated"></span>
+    </footer>
+  </main>
+
+  <script src="./src/data.js"></script>
+  <script src="./src/app.js"></script>
+</body>
+</html>
